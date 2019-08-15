@@ -6,19 +6,19 @@ import (
 	"net/http"
 )
 
-type rawHello struct {
-	greeting string
+type RawHello struct {
+	Greeting string
 }
 
-func (handler rawHello) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	res.Write([]byte(fmt.Sprintf("%v world", handler.greeting)))
+func (handler RawHello) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	res.Write([]byte(fmt.Sprintf("%v world", handler.Greeting)))
 }
 
-type jsonHello struct {
+type JsonHello struct {
 	Greeting string `json:"hello"`
 }
 
-func (handler jsonHello) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+func (handler JsonHello) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	output, err := json.Marshal(handler)
 	if err != nil {
 		fmt.Println(err)
@@ -29,7 +29,7 @@ func (handler jsonHello) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	http.Handle("/", &rawHello{greeting: "hello"})
-	http.Handle("/json", &jsonHello{Greeting: "world"})
+	http.Handle("/", &RawHello{Greeting: "hello"})
+	http.Handle("/json", &JsonHello{Greeting: "world"})
 	http.ListenAndServe(":8000", nil)
 }
