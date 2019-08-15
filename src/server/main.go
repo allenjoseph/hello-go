@@ -6,11 +6,16 @@ import (
 	"net/http"
 )
 
+func logger(url string) {
+	fmt.Println(url)
+}
+
 type RawHello struct {
 	Greeting string
 }
 
 func (handler RawHello) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	defer logger(req.URL.Path)
 	res.Write([]byte(fmt.Sprintf("%v world", handler.Greeting)))
 }
 
@@ -19,6 +24,7 @@ type JsonHello struct {
 }
 
 func (handler JsonHello) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	defer logger(req.URL.Path)
 	output, err := json.Marshal(handler)
 	if err != nil {
 		fmt.Println(err)
