@@ -37,5 +37,9 @@ func (handler JsonHello) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 func main() {
 	http.Handle("/", &RawHello{Greeting: "hello"})
 	http.Handle("/json", &JsonHello{Greeting: "world"})
+	http.HandleFunc("/inline", func(res http.ResponseWriter, req *http.Request) {
+		defer logger(req.URL.Path)
+		res.Write([]byte("Hello World! (inline handle function)"))
+	})
 	http.ListenAndServe(":8000", nil)
 }
