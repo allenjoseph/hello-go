@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -34,23 +35,23 @@ type Item struct {
 func main() {
 	resp, err := http.Get("https://es.gizmodo.com/rss")
 	if err != nil {
-		fmt.Println("GET error: %v", err)
+		log.Printf("GET error: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println("Status error: %v", resp.StatusCode)
+		log.Printf("Status error: %v", resp.StatusCode)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("Read body error: %v", err)
+		log.Printf("Read body error: %v", err)
 	}
 
 	var rss Rss
 	xml.Unmarshal(body, &rss)
 
 	for _, val := range rss.Channels[0].Items {
-		fmt.Println(val.Title)
+		fmt.Printf(val.Title)
 	}
 }
