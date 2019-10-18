@@ -1,0 +1,55 @@
+package messaging
+
+import (
+	"bytes"
+	"encoding/gob"
+
+	"github.com/allenjoseph/hello-go/src/cqrs/model"
+	"github.com/allenjoseph/hello-go/src/cqrs/util"
+	"github.com/nats-io/go-nats"
+)
+
+// NatsEventStore struct
+type NatsEventStore struct {
+	nc               *nats.Conn
+	woofSubscription *nats.Subscription
+	woofChan         chan WoofMessage
+}
+
+// OpenConnection to connecto to NATS
+func OpenConnection(url string) (*NatsEventStore, error) {
+	nc, err := nats.Connect(url)
+	util.FailOnError(err, "Failed to connect to NATS")
+
+	return &NatsEventStore{nc: nc}, nil
+}
+
+func (eventStore *NatsEventStore) writeMessage(m Message) ([]byte, error) {
+	buffer := bytes.Buffer{}
+	err := gob.NewEncoder(&buffer).Encode(m)
+	if err != nil {
+		return nil, err
+	}
+	return buffer.Bytes(), nil
+}
+
+// PublishWoofMessage to publish a woof
+func (eventStore *NatsEventStore) PublishWoofMessage(woof model.Woof) error {
+	woofMessage := WoofMessage{woof.ID, woof.Body, woof.CreatedAt}
+	data, err := eventStore.writeMessage(&woofMessage)
+	if err != nil {
+		return err
+	}
+	return eventStore.nc.Publish(woofMessage.Key(), data)
+}
+
+// Close implementation
+func (eventStore *NatsEventStore) Close() {
+	eventStore.nc.Close()
+
+	if eventStore.woofSubscription != nil {
+		eventStore.woofSubscription.Unsubscribe()
+	}
+
+	close(eventStore.woofChan)
+}
