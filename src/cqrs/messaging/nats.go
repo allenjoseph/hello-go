@@ -33,6 +33,13 @@ func (eventStore *NatsEventStore) writeMessage(m Message) ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
+func (eventStore *NatsEventStore) readMessage(data []byte, m interface{}) error {
+	buffer := bytes.Buffer{}
+	buffer.Write(data)
+
+	return gob.NewDecoder(&buffer).Decode(m)
+}
+
 // PublishWoofMessage to publish a woof
 func (eventStore *NatsEventStore) PublishWoofMessage(woof model.Woof) error {
 	woofMessage := WoofMessage{woof.ID, woof.Body, woof.CreatedAt}
@@ -41,6 +48,27 @@ func (eventStore *NatsEventStore) PublishWoofMessage(woof model.Woof) error {
 		return err
 	}
 	return eventStore.nc.Publish(woofMessage.Key(), data)
+}
+
+func (eventStore *NatsEventStore) SubscribeWoofMessage() (<-chan WoofMessage, error) {
+	woofMessage := WoofMessage{}
+	eventStore.woofChan = make(chan WoofMessage, 64)
+	woofChan := make(chan *nats.Msg, 64)
+	var err error
+	eventStore.woofSubscription, err = eventStore.nc.ChanSubscribe(woofMessage.Key(), woofChan)
+	if err != nil {
+		return nil, err
+	}
+	go func() {
+		for {
+			select {
+			case msg := <-woofChan:
+				eventStore.readMessage(msg.Data, &woofMessage)
+				eventStore.woofChan <- woofMessage
+			}
+		}
+	}()
+	return eventStore.woofChan, nil
 }
 
 // Close implementation

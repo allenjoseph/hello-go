@@ -9,9 +9,12 @@ type Woof struct {
 	CreatedAt time.Time `db:"created_at"`
 }
 
+// WoofRequest json struct
+type WoofRequest struct {
+	Message string `json:"message"`
+}
+
 // WoofResponse json struct
 type WoofResponse struct {
-	ID        string    `json:"id"`
-	Body      string    `json:"body"`
-	CreatedAt time.Time `json:"createdAt"`
+	ID string `json:"id"`
 }

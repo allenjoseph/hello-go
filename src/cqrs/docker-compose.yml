@@ -9,8 +9,14 @@ services:
       POSTGRES_PASSWORD: woofwoof
     volumes:
       - "./db/up.sql:/docker-entrypoint-initdb.d/up.sql"
-    ports:
-      - "5432:5432"
   nats:
     image: nats-streaming:linux
     restart: always
+  woofs:
+    build: "."
+    command: "woof-service"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "postgres"
+      - "nats"

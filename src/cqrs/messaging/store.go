@@ -13,7 +13,7 @@ type Message interface {
 type EventStore interface {
 	PublishWoofMessage(woof model.Woof) error
 	SubscribeWoofMessage() (<-chan WoofMessage, error)
-	OnWoofMessageCreated(f func(WoofMessage)) error
+	// OnWoofMessageCreated(f func(WoofMessage)) error
 	Close()
 }
 
@@ -35,9 +35,9 @@ func SubscribeWoofMessage() (<-chan WoofMessage, error) {
 }
 
 // OnWoofMessageCreated implementation
-func OnWoofMessageCreated(f func(WoofMessage)) error {
-	return impl.OnWoofMessageCreated(f)
-}
+// func OnWoofMessageCreated(f func(WoofMessage)) error {
+// 	return impl.OnWoofMessageCreated(f)
+// }
 
 // Close implementation
 func Close() {
