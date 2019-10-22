@@ -8,6 +8,8 @@ COPY messaging messaging
 COPY model model
 COPY util util
 COPY woof-service woof-service
+COPY query-service query-service
+COPY client client
 
 WORKDIR /go/src/github.com/allenjoseph/hello-go
 RUN go get -d -v ./...

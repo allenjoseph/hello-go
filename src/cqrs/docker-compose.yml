@@ -20,3 +20,17 @@ services:
     depends_on:
       - "postgres"
       - "nats"
+  query:
+    build: "."
+    command: "query-service"
+    ports:
+      - "9090:9090"
+    depends_on:
+      - "postgres"
+      - "nats"
+  client:
+    build: "."
+    command: "client"
+    depends_on:
+      - "postgres"
+      - "nats"
